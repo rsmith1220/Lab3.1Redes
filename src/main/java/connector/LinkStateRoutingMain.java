@@ -22,6 +22,26 @@ class Node {
     }
 }
 
+class Packet {
+    private String type;
+    private Map<String, String> headers;
+    private String payload;
+
+    public Packet(String type, Map<String, String> headers, String payload) {
+        this.type = type;
+        this.headers = headers;
+        this.payload = payload;
+    }
+
+    public String toJson() {
+        return "{\n" +
+               "\"type\": \"" + type + "\",\n" +
+               "\"headers\": " + headers.toString() + ",\n" +
+               "\"payload\": \"" + payload + "\"\n" +
+               "}";
+    }
+}
+
 class LinkStateRouting {
     private Map<String, Node> network = new HashMap<>();
     private Map<String, Map<String, Integer>> shortestPaths = new HashMap<>();
@@ -36,6 +56,42 @@ class LinkStateRouting {
             shortestPaths.put(node.getName(), shortestPath);
         }
     }
+
+    public void sendPacket(String sourceNode, String destinationNode, int hopCount, String payload) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("from", sourceNode);
+        headers.put("to", destinationNode);
+        headers.put("hop_count", Integer.toString(hopCount));
+
+        Packet packet = new Packet("message", headers, payload);
+
+        System.out.println("Sending packet from " + sourceNode + " to " + destinationNode);
+        System.out.println(packet.toJson());
+        System.out.println();
+    }
+
+    public void sendMessage(String sourceNode, String destinationNode, String message) {
+    String shortestPath = findShortestPath(sourceNode, destinationNode);
+
+    if (shortestPath.equals("No path found.")) {
+        System.out.println("No path found for sending the message.");
+    } else {
+        String[] pathNodes = shortestPath.split(" -> ");
+        int hopCount = 1;
+        
+        System.out.println("Sending message from " + sourceNode + " to " + destinationNode + " through path: " + shortestPath);
+
+        for (int i = 0; i < pathNodes.length - 1; i++) {
+            String currentNode = pathNodes[i];
+            String nextNode = pathNodes[i + 1];
+            
+            sendPacket(currentNode, nextNode, hopCount, message);
+            hopCount++;
+        }
+    }
+    }
+
+
     
     private Map<String, Integer> computeShortestPath(Node sourceNode) {
         PriorityQueue<NodeDistance> pq = new PriorityQueue<>();
@@ -176,9 +232,13 @@ public class LinkStateRoutingMain {
         
         router.computeShortestPaths();
         router.printRoutingTable();
-        
-        String shortestPath = router.findShortestPath("A", "F");
-        System.out.println("Shortest path from Node A to Node F: " + shortestPath);
+
+        String sourceNode = "A";
+        String destinationNode = "F";
+        String message = "Hola mundo";
+
+        router.sendMessage(sourceNode, destinationNode, message);
+
     }
 }
 

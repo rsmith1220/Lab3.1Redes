@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+import java.util.*;
+
 public class Dijkstra {
 
     static class Graph {
@@ -15,8 +17,7 @@ public class Dijkstra {
             vertices.put(name, neighbors);
         }
 
-        // retorna el shortest path
-        public Result shortestPath(String start, String end) {
+        public Message shortestPath(String start, String end) {
             Map<String, Integer> distances = new HashMap<>();
             Map<String, String> previous = new HashMap<>();
             PriorityQueue<VertexDistance> pq = new PriorityQueue<>();
@@ -37,7 +38,7 @@ public class Dijkstra {
                 String currentVertex = current.vertex;
 
                 if (currentVertex.equals(end)) {
-                    break; // se acaba el algoritmo
+                    break;
                 }
 
                 for (Map.Entry<String, Integer> neighbor : vertices.get(currentVertex).entrySet()) {
@@ -55,7 +56,9 @@ public class Dijkstra {
                 path.add(0, at);
             }
 
-            return new Result(distances.get(end), path);
+            int hopCount = path.size() - 1;
+
+            return new Message("info", new Headers(start, end, hopCount), "Mensaje Hola mundo");
         }
 
         static class VertexDistance implements Comparable<VertexDistance> {
@@ -74,20 +77,61 @@ public class Dijkstra {
         }
     }
 
-    static class Result {
-        Integer distance;
-        List<String> path;
+    static class Message {
+        String type;
+        Headers headers;
+        String payload;
 
-        Result(Integer distance, List<String> path) {
-            this.distance = distance;
-            this.path = path;
+        Message(String type, Headers headers, String payload) {
+            this.type = type;
+            this.headers = headers;
+            this.payload = payload;
         }
 
         @Override
         public String toString() {
-
-            return "Shortest Path: " + String.join(" -> ", path) + "\nTotal Distance: " + distance;
+            return "{\n\"type\" : \"" + type + "\",\n" +
+                    "\"headers\" : " + headers + ",\n" +
+                    "\"payload\" : \"" + payload + "\"\n}";
         }
+    }
+
+    static class Headers {
+        String from;
+        String to;
+        int hop_count;
+
+        Headers(String from, String to, int hop_count) {
+            this.from = from;
+            this.to = to;
+            this.hop_count = hop_count;
+        }
+
+        // retorna el resultado
+        @Override
+        public String toString() {
+            return "[\"from\" : \"" + from + "\", \"to\" : \"" + to + "\", \"hop_count\" : " + hop_count + "]";
+        }
+    }
+
+    public static void main(String[] args) {
+        Graph g = new Graph();
+
+        // se agregan los nodos al grafo
+        g.addVertex("A", Map.of("B", 1, "C", 4, "D", 7));
+        g.addVertex("B", Map.of("A", 1, "C", 2, "E", 5));
+        g.addVertex("C", Map.of("A", 4, "B", 2, "D", 1, "F", 6));
+        g.addVertex("D", Map.of("A", 7, "C", 1, "G", 3));
+        g.addVertex("E", Map.of("B", 5, "F", 3, "H", 1));
+        g.addVertex("F", Map.of("C", 6, "E", 3, "G", 2, "I", 4));
+        g.addVertex("G", Map.of("D", 3, "F", 2, "I", 1));
+        g.addVertex("H", Map.of("E", 1, "I", 5));
+        g.addVertex("I", Map.of("F", 4, "G", 1, "H", 5));
+
+        // se busca el camino corto para llegar a cada nodo
+        System.out.println(g.shortestPath("A", "B"));
+        System.out.println(g.shortestPath("A", "C"));
+        System.out.println(g.shortestPath("A", "I"));
     }
 
 }

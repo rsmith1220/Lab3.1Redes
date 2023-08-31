@@ -6,22 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-import java.util.*;
-
 public class Dijkstra {
 
-    static class Graph {
+    static class Graph { // creador de grafos
         Map<String, Map<String, Integer>> vertices = new HashMap<>();
 
         void addVertex(String name, Map<String, Integer> neighbors) {
             vertices.put(name, neighbors);
         }
 
-        public Message shortestPath(String start, String end) {
+        public Message shortestPath(String start, String end) { // se empieza a implementar el algoritmo Dijkstra
             Map<String, Integer> distances = new HashMap<>();
             Map<String, String> previous = new HashMap<>();
             PriorityQueue<VertexDistance> pq = new PriorityQueue<>();
 
+            // empieza a buscar el camino mas corto
             for (String vertex : vertices.keySet()) {
                 if (vertex.equals(start)) {
                     distances.put(vertex, 0);
@@ -38,7 +37,7 @@ public class Dijkstra {
                 String currentVertex = current.vertex;
 
                 if (currentVertex.equals(end)) {
-                    break;
+                    break; // encuentra el nodo final
                 }
 
                 for (Map.Entry<String, Integer> neighbor : vertices.get(currentVertex).entrySet()) {
@@ -58,7 +57,8 @@ public class Dijkstra {
 
             int hopCount = path.size() - 1;
 
-            return new Message("info", new Headers(start, end, hopCount), "Mensaje Hola mundo");
+            return new Message("info", new Headers(start, end, hopCount), "Mensaje Hola mundo");// retorna el camino
+                                                                                                // corto
         }
 
         static class VertexDistance implements Comparable<VertexDistance> {
@@ -67,7 +67,7 @@ public class Dijkstra {
 
             VertexDistance(String vertex, Integer distance) {
                 this.vertex = vertex;
-                this.distance = distance;
+                this.distance = distance; // la distancia asociada con el vertice
             }
 
             @Override
@@ -77,7 +77,7 @@ public class Dijkstra {
         }
     }
 
-    static class Message {
+    static class Message { // retorna el output con el camino corto y el mensaje
         String type;
         Headers headers;
         String payload;

@@ -18,14 +18,14 @@ public class Connection {
 
         Initiator.Coneccion(user, pass);
 
+        // se agregan nodos al grafo para el algoritmo Dijkstra
         Graph g = new Graph();
         g.addVertex("A", Map.of("B", 1, "C", 4));
         g.addVertex("B", Map.of("A", 1, "C", 2, "D", 5));
         g.addVertex("C", Map.of("A", 4, "B", 2, "D", 1));
         g.addVertex("D", Map.of("B", 5, "C", 1));
 
-        System.out.println(g.shortestPath("A", "D")); // Should print the shortest distances from A to all other
-                                                      // vertices
+        System.out.println(g.shortestPath("A", "D")); // llamada a la funcion
 
     }
 

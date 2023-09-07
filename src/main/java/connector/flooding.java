@@ -7,10 +7,12 @@ import java.util.Scanner;
 class Nodo {
     private String nombre;
     private List<Nodo> vecinos;
+    private int hopCount;
 
     public Nodo(String nombre) {
         this.nombre = nombre;
         this.vecinos = new ArrayList<>();
+        this.hopCount = 0;
     }
 
     public void agregarVecino(Nodo vecino) {
@@ -25,42 +27,47 @@ class Nodo {
         System.out.println();
     }
 
-    public void enviarMensaje(String mensaje, Nodo destino, Nodo remitente) {
-    System.out.println("Nodo " + nombre + " enviando mensaje a Nodo " + destino.nombre + ": " + mensaje);
-    System.out.print("\n");
-
-    if (this == destino) {
-        System.out.println("Mensaje entregado a Nodo " + nombre);
+    public void enviarMensaje(String mensaje, Nodo destino, Nodo remitente, int hopCount) {
+        System.out.println("{");
+        System.out.println("\"type\": \"info\",");
+        System.out.println("\"headers\": [{\"from\": \"" + this.nombre + "\", \"to\": \"" + destino.nombre + "\", \"hop_count\": " + hopCount + "}],");
+        System.out.println("\"payload\": \"" + mensaje + "\"");
+        System.out.println("}");
         System.out.print("\n");
-        return;
-    }
 
-    // Reenviar el mensaje a todos los vecinos
-    for (Nodo vecino : vecinos) {
-        if (vecino != remitente) {
-            System.out.println("Nodo " + nombre + " enviando mensaje a Nodo " + vecino.nombre);
-            vecino.recibirMensaje(mensaje, this, destino);
-            System.out.print("\n");
+        if (this == destino) {
+            System.out.println("Mensaje entregado a Nodo " + nombre);
+            return;
+        }
+
+        // Reenviar el mensaje a todos los vecinos, excepto al remitente original
+        for (Nodo vecino : vecinos) {
+            if (vecino != remitente) {
+                vecino.recibirMensaje(mensaje, this, destino, hopCount + 1); 
+            }
         }
     }
-}
 
-    public void recibirMensaje(String mensaje, Nodo remitente, Nodo destino) {
-    System.out.println("Nodo " + nombre + " recibió el mensaje de Nodo " + remitente.nombre + ": " + mensaje);
+    public void recibirMensaje(String mensaje, Nodo remitente, Nodo destino, int hopCount) {
+        System.out.println("Nodo " + nombre + " recibió el mensaje de Nodo " + remitente.nombre + ": " + mensaje);
+        System.out.println("{");
+        System.out.println("\"type\": \"info\",");
+        System.out.println("\"headers\": [{\"from\": \"" + remitente.nombre + "\", \"to\": \"" + this.nombre + "\", \"hop_count\": " + hopCount + "}],");
+        System.out.println("\"payload\": \"" + mensaje + "\"");
+        System.out.println("}");
 
-    if (this == destino) {
-        System.out.println("Mensaje entregado a Nodo " + nombre);
-        return;
-    }
+        if (this == destino) {
+            System.out.println("Mensaje entregado a Nodo " + nombre);
+            return;
+        }
 
-    // Reenviar el mensaje a todos los vecinos, excepto al remitente original
-    for (Nodo vecino : vecinos) {
-        if (vecino != remitente) {
-            System.out.println("Nodo " + nombre + " reenviando mensaje a Nodo " + vecino.nombre);
-            vecino.recibirMensaje(mensaje, this, destino);
+        // Reenviar el mensaje a todos los vecinos, excepto al remitente original
+        for (Nodo vecino : vecinos) {
+            if (vecino != remitente) {
+                vecino.recibirMensaje(mensaje, this, destino, hopCount + 1); 
+            }
         }
     }
-}
 }
 
 public class flooding {
@@ -84,7 +91,7 @@ public class flooding {
         nodoC.mostrarVecinos();
         nodoD.mostrarVecinos();
         System.out.print("\n");
-        
+
         Scanner scanner = new Scanner(System.in);
         System.out.print("Nodo de origen (A, B, C, D): ");
         String origen = scanner.nextLine();
@@ -133,7 +140,8 @@ public class flooding {
                 return;
         }
 
-        nodoOrigen.enviarMensaje(mensaje, nodoDestino, null);
+        // Enviar el mensaje desde el nodo de origen al nodo de destino
+        nodoOrigen.enviarMensaje(mensaje, nodoDestino, null, 0); 
         scanner.close();
     }
 }

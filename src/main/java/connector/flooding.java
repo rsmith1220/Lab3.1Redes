@@ -27,6 +27,7 @@ class Nodo {
 
     public void enviarMensaje(String mensaje, Nodo destino, Nodo remitente) {
     System.out.println("Nodo " + nombre + " enviando mensaje a Nodo " + destino.nombre + ": " + mensaje);
+    System.out.print("\n");
 
     if (this == destino) {
         System.out.println("Mensaje entregado a Nodo " + nombre);
@@ -36,7 +37,7 @@ class Nodo {
 
     // Reenviar el mensaje a todos los vecinos
     for (Nodo vecino : vecinos) {
-        if (!vecino.nombre.equals(this.nombre)) {
+        if (vecino != remitente) {
             System.out.println("Nodo " + nombre + " enviando mensaje a Nodo " + vecino.nombre);
             vecino.recibirMensaje(mensaje, this, destino);
             System.out.print("\n");
@@ -54,7 +55,7 @@ class Nodo {
 
     // Reenviar el mensaje a todos los vecinos, excepto al remitente original
     for (Nodo vecino : vecinos) {
-        if (!vecino.nombre.equals(this.nombre) && vecino == destino) {
+        if (vecino != remitente) {
             System.out.println("Nodo " + nombre + " reenviando mensaje a Nodo " + vecino.nombre);
             vecino.recibirMensaje(mensaje, this, destino);
         }
@@ -78,6 +79,12 @@ public class flooding {
         nodoD.agregarVecino(nodoC);
         nodoD.agregarVecino(nodoA);
 
+        nodoA.mostrarVecinos();
+        nodoB.mostrarVecinos();
+        nodoC.mostrarVecinos();
+        nodoD.mostrarVecinos();
+        System.out.print("\n");
+        
         Scanner scanner = new Scanner(System.in);
         System.out.print("Nodo de origen (A, B, C, D): ");
         String origen = scanner.nextLine();

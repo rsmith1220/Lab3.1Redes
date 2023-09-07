@@ -4,146 +4,130 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-class Node {
-    public int nodeId;
-    private List<Node> neighbors;
-    private boolean receivedMessage;
+class Nodo {
+    private String nombre;
+    private List<Nodo> vecinos;
 
-    public Node(int nodeId) {
-        this.nodeId = nodeId;
-        this.neighbors = new ArrayList<>();
-        this.receivedMessage = false;
+    public Nodo(String nombre) {
+        this.nombre = nombre;
+        this.vecinos = new ArrayList<>();
     }
 
-    public void addNeighbor(Node neighbor) {
-        neighbors.add(neighbor);
+    public void agregarVecino(Nodo vecino) {
+        vecinos.add(vecino);
     }
 
-    public void flood(String message, int hopCount, int destinationNode) {
-        if (hopCount <= 10) {
-            if (!receivedMessage) {
-                System.out.println(generateInfoJSON(nodeId, nodeId, hopCount, message));
-                receivedMessage = true;
-            }
-            if (nodeId != destinationNode) {
-                for (Node neighbor : neighbors) {
-                    if (!neighbor.receivedMessage) {
-                        System.out.println(generateInfoJSON(nodeId, neighbor.nodeId, hopCount + 1, message));
-                        neighbor.forwardMessage(message, hopCount + 1, destinationNode);
-                    }
-                }
+    public void mostrarVecinos() {
+        System.out.print("Nodo " + nombre + " tiene vecinos: ");
+        for (Nodo vecino : vecinos) {
+            System.out.print(vecino.nombre + " ");
+        }
+        System.out.println();
+    }
+
+    public void enviarMensaje(String mensaje, Nodo destino) {
+        System.out.println("Nodo " + nombre + " enviando mensaje a Nodo " + destino.nombre + ": " + mensaje);
+
+        if (this == destino) {
+            System.out.println("Mensaje entregado a Nodo " + nombre);
+            return;
+        }
+
+        // Reenviar el mensaje a todos los vecinos
+        for (Nodo vecino : vecinos) {
+            if (!vecino.nombre.equals(this.nombre)) {
+                vecino.recibirMensaje(mensaje, this, destino);
             }
         }
     }
 
-    public void forwardMessage(String message, int hopCount, int destinationNode) {
-        if (hopCount <= 10) {
-            if (!receivedMessage) {
-                System.out.println(generateInfoJSON(nodeId, nodeId, hopCount, message));
-                receivedMessage = true;
-            }
-            if (nodeId != destinationNode) {
-                for (Node neighbor : neighbors) {
-                    if (!neighbor.receivedMessage) {
-                        System.out.println(generateInfoJSON(nodeId, neighbor.nodeId, hopCount + 1, message));
-                        neighbor.forwardMessage(message, hopCount + 1, destinationNode);
-                    }
-                }
+    public void recibirMensaje(String mensaje, Nodo remitente, Nodo destino) {
+        System.out.println("Nodo " + nombre + " recibió el mensaje de Nodo " + remitente.nombre + ": " + mensaje);
+
+        if (this == destino) {
+            System.out.println("Mensaje entregado a Nodo " + nombre);
+            return;
+        }
+
+        // Reenviar el mensaje a todos los vecinos, excepto al remitente original
+        for (Nodo vecino : vecinos) {
+            if (!vecino.nombre.equals(this.nombre) && vecino == destino) {
+                vecino.recibirMensaje(mensaje, this, destino);
             }
         }
-    }
-
-    private String generateInfoJSON(int fromNode, int toNode, int hopCount, String message) {
-        String headers = "\"headers\" : [{\"from\" : \"" + fromNode + "\", \"to\" : \"" + toNode + "\", \"hop_count\" : " + hopCount + "}],";
-        String payload = "\"payload\" : \"" + message + "\"";
-        return "{" + "\"type\" : \"info\"," + headers + payload + "}";
     }
 }
 
 public class flooding {
     public static void main(String[] args) {
-        List<Node> nodes = new ArrayList<>();
-        for (int i = 0; i < 11; i++) {
-            nodes.add(new Node(i));
-        }
-      // Configuración de conexiones
-        nodes.get(0).addNeighbor(nodes.get(1));
-        nodes.get(0).addNeighbor(nodes.get(2));
+        Nodo nodoA = new Nodo("A");
+        Nodo nodoB = new Nodo("B");
+        Nodo nodoC = new Nodo("C");
+        Nodo nodoD = new Nodo("D");
 
-        nodes.get(1).addNeighbor(nodes.get(0));
-        nodes.get(1).addNeighbor(nodes.get(3));
+        nodoA.agregarVecino(nodoB);
+        nodoA.agregarVecino(nodoC);
+        nodoB.agregarVecino(nodoA);
+        nodoB.agregarVecino(nodoC);
+        nodoC.agregarVecino(nodoA);
+        nodoC.agregarVecino(nodoB);
+        nodoC.agregarVecino(nodoD);
+        nodoD.agregarVecino(nodoC);
 
-        nodes.get(2).addNeighbor(nodes.get(0));
-        nodes.get(2).addNeighbor(nodes.get(3));
-        nodes.get(2).addNeighbor(nodes.get(4));
-
-        nodes.get(3).addNeighbor(nodes.get(1));
-        nodes.get(3).addNeighbor(nodes.get(2));
-        nodes.get(3).addNeighbor(nodes.get(5));
-
-        nodes.get(4).addNeighbor(nodes.get(2));
-        nodes.get(4).addNeighbor(nodes.get(5));
-        nodes.get(4).addNeighbor(nodes.get(6));
-
-        nodes.get(5).addNeighbor(nodes.get(3));
-        nodes.get(5).addNeighbor(nodes.get(4));
-        nodes.get(5).addNeighbor(nodes.get(7));
-
-        nodes.get(6).addNeighbor(nodes.get(4));
-        nodes.get(6).addNeighbor(nodes.get(7));
-
-        nodes.get(7).addNeighbor(nodes.get(5));
-        nodes.get(7).addNeighbor(nodes.get(6));
-        nodes.get(7).addNeighbor(nodes.get(8));
-
-        nodes.get(8).addNeighbor(nodes.get(7));
-        nodes.get(8).addNeighbor(nodes.get(9));
-
-        nodes.get(9).addNeighbor(nodes.get(8));
-        nodes.get(9).addNeighbor(nodes.get(10));
-
-        nodes.get(10).addNeighbor(nodes.get(9));
-
+        // Mostrar los vecinos de cada nodo
+        nodoA.mostrarVecinos();
+        nodoB.mostrarVecinos();
+        nodoC.mostrarVecinos();
+        nodoD.mostrarVecinos();
 
         Scanner scanner = new Scanner(System.in);
+        System.out.print("Nodo de origen (A, B, C, D): ");
+        String origen = scanner.nextLine();
+        System.out.print("Nodo de destino (A, B, C, D): ");
+        String destino = scanner.nextLine();
+        System.out.print("Mensaje a enviar: ");
+        String mensaje = scanner.nextLine();
 
-        System.out.print("Enter source node (0-10): ");
-        int sourceNode = scanner.nextInt();
+        Nodo nodoOrigen = null;
+        Nodo nodoDestino = null;
 
-        System.out.print("Enter destination node (0-10): ");
-        int destinationNode = scanner.nextInt();
-
-        scanner.nextLine(); // Consume newline
-
-        System.out.print("Enter message: ");
-        String message = scanner.nextLine();
-
-        if (sourceNode >= 0 && sourceNode <= 10 && destinationNode >= 0 && destinationNode <= 10) {
-            if (sourceNode != destinationNode) {
-                Node source = getNodeById(sourceNode, nodes.toArray(new Node[0]));
-                Node destination = getNodeById(destinationNode, nodes.toArray(new Node[0]));
-
-                if (source != null && destination != null) {
-                    source.flood(message, 0, destinationNode);
-                } else {
-                    System.out.println("Invalid source or destination node.");
-                }
-            } else {
-                System.out.println("Source and destination nodes cannot be the same.");
-            }
-        } else {
-            System.out.println("Invalid node number.");
+        switch (origen) {
+            case "A":
+                nodoOrigen = nodoA;
+                break;
+            case "B":
+                nodoOrigen = nodoB;
+                break;
+            case "C":
+                nodoOrigen = nodoC;
+                break;
+            case "D":
+                nodoOrigen = nodoD;
+                break;
+            default:
+                System.out.println("Nodo de origen no válido.");
+                return;
         }
 
+        switch (destino) {
+            case "A":
+                nodoDestino = nodoA;
+                break;
+            case "B":
+                nodoDestino = nodoB;
+                break;
+            case "C":
+                nodoDestino = nodoC;
+                break;
+            case "D":
+                nodoDestino = nodoD;
+                break;
+            default:
+                System.out.println("Nodo de destino no válido.");
+                return;
+        }
+
+        nodoOrigen.enviarMensaje(mensaje, nodoDestino);
         scanner.close();
-    }
-
-    private static Node getNodeById(int nodeId, Node... nodes) {
-        for (Node node : nodes) {
-            if (node.nodeId == nodeId) {
-                return node;
-            }
-        }
-        return null;
     }
 }

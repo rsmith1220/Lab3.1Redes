@@ -25,37 +25,41 @@ class Nodo {
         System.out.println();
     }
 
-    public void enviarMensaje(String mensaje, Nodo destino) {
-        System.out.println("Nodo " + nombre + " enviando mensaje a Nodo " + destino.nombre + ": " + mensaje);
+    public void enviarMensaje(String mensaje, Nodo destino, Nodo remitente) {
+    System.out.println("Nodo " + nombre + " enviando mensaje a Nodo " + destino.nombre + ": " + mensaje);
 
-        if (this == destino) {
-            System.out.println("Mensaje entregado a Nodo " + nombre);
-            return;
-        }
+    if (this == destino) {
+        System.out.println("Mensaje entregado a Nodo " + nombre);
+        System.out.print("\n");
+        return;
+    }
 
-        // Reenviar el mensaje a todos los vecinos
-        for (Nodo vecino : vecinos) {
-            if (!vecino.nombre.equals(this.nombre)) {
-                vecino.recibirMensaje(mensaje, this, destino);
-            }
+    // Reenviar el mensaje a todos los vecinos
+    for (Nodo vecino : vecinos) {
+        if (!vecino.nombre.equals(this.nombre)) {
+            System.out.println("Nodo " + nombre + " enviando mensaje a Nodo " + vecino.nombre);
+            vecino.recibirMensaje(mensaje, this, destino);
+            System.out.print("\n");
         }
     }
+}
 
     public void recibirMensaje(String mensaje, Nodo remitente, Nodo destino) {
-        System.out.println("Nodo " + nombre + " recibió el mensaje de Nodo " + remitente.nombre + ": " + mensaje);
+    System.out.println("Nodo " + nombre + " recibió el mensaje de Nodo " + remitente.nombre + ": " + mensaje);
 
-        if (this == destino) {
-            System.out.println("Mensaje entregado a Nodo " + nombre);
-            return;
-        }
+    if (this == destino) {
+        System.out.println("Mensaje entregado a Nodo " + nombre);
+        return;
+    }
 
-        // Reenviar el mensaje a todos los vecinos, excepto al remitente original
-        for (Nodo vecino : vecinos) {
-            if (!vecino.nombre.equals(this.nombre) && vecino == destino) {
-                vecino.recibirMensaje(mensaje, this, destino);
-            }
+    // Reenviar el mensaje a todos los vecinos, excepto al remitente original
+    for (Nodo vecino : vecinos) {
+        if (!vecino.nombre.equals(this.nombre) && vecino == destino) {
+            System.out.println("Nodo " + nombre + " reenviando mensaje a Nodo " + vecino.nombre);
+            vecino.recibirMensaje(mensaje, this, destino);
         }
     }
+}
 }
 
 public class flooding {
@@ -66,19 +70,13 @@ public class flooding {
         Nodo nodoD = new Nodo("D");
 
         nodoA.agregarVecino(nodoB);
-        nodoA.agregarVecino(nodoC);
+        nodoA.agregarVecino(nodoD);
         nodoB.agregarVecino(nodoA);
         nodoB.agregarVecino(nodoC);
-        nodoC.agregarVecino(nodoA);
         nodoC.agregarVecino(nodoB);
         nodoC.agregarVecino(nodoD);
         nodoD.agregarVecino(nodoC);
-
-        // Mostrar los vecinos de cada nodo
-        nodoA.mostrarVecinos();
-        nodoB.mostrarVecinos();
-        nodoC.mostrarVecinos();
-        nodoD.mostrarVecinos();
+        nodoD.agregarVecino(nodoA);
 
         Scanner scanner = new Scanner(System.in);
         System.out.print("Nodo de origen (A, B, C, D): ");
@@ -87,6 +85,7 @@ public class flooding {
         String destino = scanner.nextLine();
         System.out.print("Mensaje a enviar: ");
         String mensaje = scanner.nextLine();
+        System.out.print("\n");
 
         Nodo nodoOrigen = null;
         Nodo nodoDestino = null;
@@ -127,7 +126,7 @@ public class flooding {
                 return;
         }
 
-        nodoOrigen.enviarMensaje(mensaje, nodoDestino);
+        nodoOrigen.enviarMensaje(mensaje, nodoDestino, null);
         scanner.close();
     }
 }

@@ -29,7 +29,7 @@ class Nodo {
 
     public void enviarMensaje(String mensaje, Nodo destino, Nodo remitente, int hopCount) {
         System.out.println("{");
-        System.out.println("\"type\": \"info\",");
+        System.out.println("\"type\": \"message\",");
         System.out.println("\"headers\": [{\"from\": \"" + this.nombre + "\", \"to\": \"" + destino.nombre + "\", \"hop_count\": " + hopCount + "}],");
         System.out.println("\"payload\": \"" + mensaje + "\"");
         System.out.println("}");
@@ -51,7 +51,7 @@ class Nodo {
     public void recibirMensaje(String mensaje, Nodo remitente, Nodo destino, int hopCount) {
         System.out.println("Nodo " + nombre + " recibió el mensaje de Nodo " + remitente.nombre + ": " + mensaje);
         System.out.println("{");
-        System.out.println("\"type\": \"info\",");
+        System.out.println("\"type\": \"message\",");
         System.out.println("\"headers\": [{\"from\": \"" + remitente.nombre + "\", \"to\": \"" + this.nombre + "\", \"hop_count\": " + hopCount + "}],");
         System.out.println("\"payload\": \"" + mensaje + "\"");
         System.out.println("}");
